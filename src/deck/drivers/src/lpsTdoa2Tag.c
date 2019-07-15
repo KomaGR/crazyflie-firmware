@@ -144,10 +144,10 @@ static uint64_t truncateToAnchorTimeStamp(uint64_t fullTimeStamp) {
 }
 
 static void enqueueTDOA(uint8_t anchorA, uint8_t anchorB, double distanceDiff) {
-  tdoa.stdDev = MEASUREMENT_NOISE_STD
-  tdoa.distanceDiff = distanceDiff
-  tdoa.anchorPosition[0] = options->anchorPosition[anchorA]
-  tdoa.anchorPosition[1] = options->anchorPosition[anchorB]
+  tdoa.stdDev = MEASUREMENT_NOISE_STD;
+  tdoa.distanceDiff = distanceDiff;
+  tdoa.anchorPosition[0] = options->anchorPosition[anchorA];
+  tdoa.anchorPosition[1] = options->anchorPosition[anchorB];
 
   if (options->combinedAnchorPositionOk ||
       (options->anchorPosition[anchorA].timestamp && options->anchorPosition[anchorB].timestamp)) {
