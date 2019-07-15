@@ -88,6 +88,8 @@ typedef struct {
   uint32_t anchorStatusTimeout;
 } history_t;
 
+tdoaMeasurement_t tdoa;
+
 static uint8_t previousAnchor;
 // Holds data for the latest packet from all anchors
 static history_t history[LOCODECK_NR_OF_TDOA2_ANCHORS];
@@ -142,13 +144,10 @@ static uint64_t truncateToAnchorTimeStamp(uint64_t fullTimeStamp) {
 }
 
 static void enqueueTDOA(uint8_t anchorA, uint8_t anchorB, double distanceDiff) {
-  tdoaMeasurement_t tdoa = {
-    .stdDev = MEASUREMENT_NOISE_STD,
-    .distanceDiff = distanceDiff,
-
-    .anchorPosition[0] = options->anchorPosition[anchorA],
-    .anchorPosition[1] = options->anchorPosition[anchorB]
-  };
+  tdoa.stdDev = MEASUREMENT_NOISE_STD
+  tdoa.distanceDiff = distanceDiff
+  tdoa.anchorPosition[0] = options->anchorPosition[anchorA]
+  tdoa.anchorPosition[1] = options->anchorPosition[anchorB]
 
   if (options->combinedAnchorPositionOk ||
       (options->anchorPosition[anchorA].timestamp && options->anchorPosition[anchorB].timestamp)) {
@@ -497,6 +496,17 @@ uwbAlgorithm_t uwbTdoa2TagAlgorithm = {
 void lpsTdoa2TagSetOptions(lpsTdoa2AlgoOptions_t* newOptions) {
   options = newOptions;
 }
+
+LOG_GROUP_START(estim_tdoa)
+LOG_ADD(LOG_FLOAT, aP0x, &tdoa.anchorPosition[0].x)
+LOG_ADD(LOG_FLOAT, aP0y, &tdoa.anchorPosition[0].y)
+LOG_ADD(LOG_FLOAT, aP0z, &tdoa.anchorPosition[0].z)
+LOG_ADD(LOG_FLOAT, aP1x, &tdoa.anchorPosition[1].x)
+LOG_ADD(LOG_FLOAT, aP1y, &tdoa.anchorPosition[1].y)
+LOG_ADD(LOG_FLOAT, aP1z, &tdoa.anchorPosition[1].z)
+LOG_ADD(LOG_FLOAT, distDiff, &tdoa.distanceDiff)
+LOG_ADD(LOG_FLOAT, stdDev, &tdoa.stdDev)
+LOG_GROUP_STOP(estim_tdoa)
 
 LOG_GROUP_START(tdoa)
 LOG_ADD(LOG_FLOAT, d7-0, &logUwbTdoaDistDiff[0])

@@ -60,6 +60,9 @@ static bool isInit;
 
 static VL53L0xDev dev;
 
+// TOF for estimator
+tofMeasurement_t tofData;
+
 void zRangerInit(DeckInfo* info)
 {
   if (isInit)
@@ -110,7 +113,7 @@ void zRangerTask(void* arg)
     if (getStateEstimator() == kalmanEstimator &&
         range_last < RANGE_OUTLIER_LIMIT) {
       // Form measurement
-      tofMeasurement_t tofData;
+      // tofMeasurement_t tofData;
       tofData.timestamp = xTaskGetTickCount();
       tofData.distance = (float)range_last * 0.001f; // Scale from [mm] to [m]
       tofData.stdDev = expStdA * (1.0f  + expf( expCoeff * ( tofData.distance - expPointA)));
@@ -144,6 +147,11 @@ static const DeckDriver zranger_deck = {
 };
 
 DECK_DRIVER(zranger_deck);
+
+LOG_GROUP_START(estim_tof)
+LOG_ADD(LOG_FLOAT, distance, &tofData.distance)
+LOG_ADD(LOG_FLOAT, stdDev, &tofData.stdDev)
+LOG_GROUP_STOP(estim_tof)
 
 PARAM_GROUP_START(deck)
 PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcZRanger, &isInit)

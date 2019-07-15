@@ -97,6 +97,9 @@ typedef struct {
 static twrState_t state;
 static lpsTwrAlgoOptions_t* options = &defaultOptions;
 
+// Distance for estimator
+distanceMeasurement_t dist;
+
 // Outlier rejection
 #define RANGING_HISTORY_LENGTH 32
 #define OUTLIER_TH 4
@@ -252,7 +255,7 @@ static uint32_t rxcallback(dwDevice_t *dev) {
 
       if ((options->combinedAnchorPositionOk || options->anchorPosition[current_anchor].timestamp) &&
           (diff < (OUTLIER_TH*stddev))) {
-        distanceMeasurement_t dist;
+        // distanceMeasurement_t dist;
         dist.distance = state.distance[current_anchor];
         dist.x = options->anchorPosition[current_anchor].x;
         dist.y = options->anchorPosition[current_anchor].y;
@@ -565,6 +568,14 @@ LOG_ADD(LOG_UINT8, rangingPerSec4, &rangingPerSec[4])
 LOG_ADD(LOG_UINT8, rangingSuccessRate5, &rangingSuccessRate[5])
 LOG_ADD(LOG_UINT8, rangingPerSec5, &rangingPerSec[5])
 LOG_GROUP_STOP(twr)
+
+LOG_GROUP_START(estim_distance)
+LOG_ADD(LOG_FLOAT, x, &dist.x)
+LOG_ADD(LOG_FLOAT, y, &dist.y)
+LOG_ADD(LOG_FLOAT, z, &dist.z)
+LOG_ADD(LOG_FLOAT, distance, &dist.distance)
+LOG_ADD(LOG_FLOAT, stdDev, &dist.stdDev)
+LOG_GROUP_STOP(estim_distance)
 
 LOG_GROUP_START(ranging)
 #if (LOCODECK_NR_OF_TWR_ANCHORS > 0)

@@ -102,6 +102,9 @@ static bool rangingOk;
 
 static tdoaEngineState_t engineState;
 
+#ifdef LPS_2D_POSITION_HEIGHT
+heightMeasurement_t heightData;
+#endif
 
 static bool isValidTimeStamp(const int64_t anchorRxTime) {
   return anchorRxTime != 0;
@@ -268,7 +271,7 @@ static void sendTdoaToEstimatorCallback(tdoaMeasurement_t* tdoaMeasurement) {
   #ifdef LPS_2D_POSITION_HEIGHT
   // If LPS_2D_POSITION_HEIGHT is defined we assume that we are doing 2D positioning.
   // LPS_2D_POSITION_HEIGHT contains the height (Z) that the tag will be located at
-  heightMeasurement_t heightData;
+  // heightMeasurement_t heightData;
   heightData.timestamp = xTaskGetTickCount();
   heightData.height = LPS_2D_POSITION_HEIGHT;
   heightData.stdDev = 0.0001;
@@ -346,6 +349,13 @@ LOG_ADD(LOG_FLOAT, cc, &engineState.stats.clockCorrection)
 LOG_ADD(LOG_UINT16, tof, &engineState.stats.tof)
 LOG_ADD(LOG_FLOAT, tdoa, &engineState.stats.tdoa)
 LOG_GROUP_STOP(tdoa3)
+
+#ifdef LPS_2D_POSITION_HEIGHT
+LOG_GROUP_START(estim_distance)
+LOG_ADD(LOG_FLOAT, height, &heightData.height)
+LOG_ADD(LOG_FLOAT, stdDev, &heightData.stdDev)
+LOG_GROUP_STOP(estim_distance)
+#endif
 
 PARAM_GROUP_START(tdoa3)
 PARAM_ADD(PARAM_UINT8, logId, &engineState.stats.newAnchorId)

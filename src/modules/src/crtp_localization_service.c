@@ -201,6 +201,7 @@ LOG_GROUP_START(ext_pos)
   LOG_ADD(LOG_FLOAT, X, &ext_pos.x)
   LOG_ADD(LOG_FLOAT, Y, &ext_pos.y)
   LOG_ADD(LOG_FLOAT, Z, &ext_pos.z)
+  LOG_ADD(LOG_FLOAT, stdDev, &ext_pos.stdDev)
 LOG_GROUP_STOP(ext_pos)
 
 PARAM_GROUP_START(locSrv)
