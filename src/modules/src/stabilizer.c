@@ -592,6 +592,21 @@ LOG_ADD(LOG_FLOAT, z, &sensorData.gyroSec.z)
 LOG_GROUP_STOP(gyroSec)
 #endif
 
+// Temporary development groups
+LOG_GROUP_START(position)
+LOG_ADD(LOG_FLOAT, sensorsMagX, &sensorData.position.x)
+LOG_ADD(LOG_FLOAT, sensorsMagY, &sensorData.position.y)
+LOG_ADD(LOG_FLOAT, sensorsMagZ, &sensorData.position.z)
+LOG_ADD(LOG_FLOAT, sensorsZrDist, &sensorData.zrange.distance)
+LOG_GROUP_STOP(position)
+
+LOG_GROUP_START(estimator_control)
+LOG_ADD(LOG_INT16, controlPitch, &control.pitch)
+LOG_ADD(LOG_INT16, controlYaw, &control.yaw)
+LOG_ADD(LOG_INT16, controlRoll, &control.roll)
+LOG_ADD(LOG_FLOAT, controlThrust, &control.thrust)
+LOG_GROUP_STOP(estimator_control)
+
 LOG_GROUP_START(mag)
 LOG_ADD(LOG_FLOAT, x, &sensorData.mag.x)
 LOG_ADD(LOG_FLOAT, y, &sensorData.mag.y)
