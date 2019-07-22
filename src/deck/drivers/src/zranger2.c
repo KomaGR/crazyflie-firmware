@@ -60,6 +60,7 @@ static uint16_t range_last = 0;
 static bool isInit;
 
 static VL53L1_Dev_t dev;
+tofMeasurement_t tofData;
 
 static uint16_t zRanger2GetMeasurementAndRestart(VL53L1_Dev_t *dev)
 {
@@ -139,7 +140,7 @@ void zRanger2Task(void* arg)
     if (getStateEstimator() == kalmanEstimator &&
         range_last < RANGE_OUTLIER_LIMIT) {
       // Form measurement
-      tofMeasurement_t tofData;
+      // tofMeasurement_t tofData;
       tofData.timestamp = xTaskGetTickCount();
       tofData.distance = (float)range_last * 0.001f; // Scale from [mm] to [m]
       tofData.stdDev = expStdA * (1.0f  + expf( expCoeff * ( tofData.distance - expPointA)));
@@ -175,6 +176,12 @@ static const DeckDriver zranger2_deck = {
 };
 
 DECK_DRIVER(zranger2_deck);
+
+LOG_GROUP_START(tofDt)
+LOG_ADD(LOG_UINT32, timestamp, &tofData.timestamp)
+LOG_ADD(LOG_UINT32, distance, &tofData.distance)
+LOG_ADD(LOG_UINT32, stdDev, &tofData.stdDev)
+LOG_GROUP_STOP(tofDt)
 
 PARAM_GROUP_START(deck)
 PARAM_ADD(PARAM_UINT8 | PARAM_RONLY, bcZRanger2, &isInit)

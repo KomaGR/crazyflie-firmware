@@ -65,6 +65,7 @@ static bool isInit1 = false;
 static bool isInit2 = false;
 
 motionBurst_t currentMotion;
+flowMeasurement_t flowData;
 
 // Disables pushing the flow measurement in the EKF
 static bool useFlowDisabled = false;
@@ -90,7 +91,7 @@ static void flowdeckTask(void *param)
     if (abs(accpx) < OULIER_LIMIT && abs(accpy) < OULIER_LIMIT) {
 
       // Form flow measurement struct and push into the EKF
-      flowMeasurement_t flowData;
+      // flowMeasurement_t flowData;
       flowData.stdDevX = 0.25;    // [pixels] should perhaps be made larger?
       flowData.stdDevY = 0.25;    // [pixels] should perhaps be made larger?
       flowData.dt = 0.01;
@@ -220,6 +221,15 @@ static const DeckDriver flowdeck2_deck = {
 };
 
 DECK_DRIVER(flowdeck2_deck);
+
+LOG_GROUP_START(flowDt)
+LOG_ADD(LOG_FLOAT, dpixelx, &flowData.dpixelx)
+LOG_ADD(LOG_FLOAT, dpixely, &flowData.dpixely)
+LOG_ADD(LOG_FLOAT, stdDevX, &flowData.stdDevX)
+LOG_ADD(LOG_FLOAT, stdDevY, &flowData.stdDevY)
+LOG_ADD(LOG_FLOAT, dt, &flowData.dt)
+LOG_ADD(LOG_UINT32, timestamp, &flowData.timestamp)
+LOG_GROUP_STOP(flowDt)
 
 LOG_GROUP_START(motion)
 LOG_ADD(LOG_UINT8, motion, &currentMotion.motion)
