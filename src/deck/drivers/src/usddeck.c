@@ -270,11 +270,11 @@ static void usdInit(DeckInfo *info)
       if (f_open(&logFile, "config.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
         unsigned int bytesWritten;
         const char *configtxt = "250\n" /* frequency */
-                                "100\n" /* buffer size */
+                                "50\n" /* buffer size */
                                 "log\n" /* file name */
                                 "1\n"   /* enable on startup (0/1) */
                                 "1\n"   /* mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous) */
-                                "control.controlThrust\n"
+                                "estControl.controlThrust\n"
                                 "gyro.x\n"
                                 "gyro.y\n"
                                 "gyro.z\n"
