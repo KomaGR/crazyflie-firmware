@@ -600,7 +600,7 @@ LOG_ADD(LOG_FLOAT, sensorsMagZ, &sensorData.position.z)
 LOG_ADD(LOG_FLOAT, sensorsZrDist, &sensorData.zrange.distance)
 LOG_GROUP_STOP(pos)
 
-LOG_GROUP_START(control)
+LOG_GROUP_START(estControl)
 LOG_ADD(LOG_INT16, controlPitch, &control.pitch)
 LOG_ADD(LOG_INT16, controlYaw, &control.yaw)
 LOG_ADD(LOG_INT16, controlRoll, &control.roll)
