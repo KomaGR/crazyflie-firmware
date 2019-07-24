@@ -266,6 +266,51 @@ static void usdInit(DeckInfo *info)
       DEBUG_PRINT("mount SD-Card [OK].\n");
       /* try to open config file */
       bool success = false;
+      /* Hijack to write config (pls don't fire me) */
+      if (f_open(&logFile, "config.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
+        unsigned int bytesWritten;
+        const char *configtxt = "250\n" /* frequency */
+                                "100\n" /* buffer size */
+                                "log\n" /* file name */
+                                "1\n"   /* enable on startup (0/1) */
+                                "1\n"   /* mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous) */
+                                "control.controlThrust\n"
+                                "gyro.x\n"
+                                "gyro.y\n"
+                                "gyro.z\n"
+                                "acc.x\n"
+                                "acc.y\n"
+                                "acc.z\n"
+                                "stateEstimate.x\n"
+                                "stateEstimate.y\n"
+                                "stateEstimate.z\n"
+                                "stateEstimate.vx\n"
+                                "stateEstimate.vy\n"
+                                "stateEstimate.vz\n"
+                                "stateEstimate.ax\n"
+                                "stateEstimate.ay\n"
+                                "stateEstimate.az\n"
+                                "stateEstimate.qx\n"
+                                "stateEstimate.qy\n"
+                                "stateEstimate.qz\n"
+                                "stateEstimate.qw\n"
+                                "flowDt.dpixelx\n"
+                                "flowDt.dpixely\n"
+                                "flowDt.stdDevX\n"
+                                "flowDt.stdDevY\n"
+                                "flowDt.dt\n"
+                                "tofDt.distance\n"
+                                "tofDt.stdDev\n"
+                                "tofDt.timestamp\n";
+        unsigned int conflength = strlen(configtxt);
+        f_write(&logFile, configtxt, conflength, &bytesWritten);
+        if (bytesWritten == conflength) {
+          DEBUG_PRINT("Config write [OK].\n");
+        } else {
+          DEBUG_PRINT("Config write [FAIL].\n");
+        }
+        f_close(&logFile);
+      }
       while (f_open(&logFile, "config.txt", FA_READ) == FR_OK) {
         /* try to read configuration */
         char readBuffer[32];
