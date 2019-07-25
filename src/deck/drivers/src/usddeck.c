@@ -269,10 +269,10 @@ static void usdInit(DeckInfo *info)
       /* Hijack to write config (pls don't fire me) */
       if (f_open(&logFile, "config.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
         unsigned int bytesWritten;
-        const char *configtxt = "250\n" /* frequency */
-                                "50\n" /* buffer size */
+        const char *configtxt = "500\n" /* frequency */
+                                "75\n" /* buffer size */
                                 "log\n" /* file name */
-                                "1\n"   /* enable on startup (0/1) */
+                                "0\n"   /* enable on startup (0/1) */
                                 "1\n"   /* mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous) */
                                 "estControl.controlThrust\n"
                                 "gyro.x\n"
@@ -281,19 +281,19 @@ static void usdInit(DeckInfo *info)
                                 "acc.x\n"
                                 "acc.y\n"
                                 "acc.z\n"
-                                "stateEstimate.x\n"
-                                "stateEstimate.y\n"
-                                "stateEstimate.z\n"
-                                "stateEstimate.vx\n"
-                                "stateEstimate.vy\n"
-                                "stateEstimate.vz\n"
-                                "stateEstimate.ax\n"
-                                "stateEstimate.ay\n"
-                                "stateEstimate.az\n"
-                                "stateEstimate.qx\n"
-                                "stateEstimate.qy\n"
-                                "stateEstimate.qz\n"
-                                "stateEstimate.qw\n"
+                                // "stateEstimate.x\n"
+                                // "stateEstimate.y\n"
+                                // "stateEstimate.z\n"
+                                // "stateEstimate.vx\n"
+                                // "stateEstimate.vy\n"
+                                // "stateEstimate.vz\n"
+                                // "stateEstimate.ax\n"
+                                // "stateEstimate.ay\n"
+                                // "stateEstimate.az\n"
+                                // "stateEstimate.qx\n"
+                                // "stateEstimate.qy\n"
+                                // "stateEstimate.qz\n"
+                                // "stateEstimate.qw\n"
                                 "flowDt.dpixelx\n"
                                 "flowDt.dpixely\n"
                                 "flowDt.stdDevX\n"
@@ -598,6 +598,7 @@ static void usdWriteTask(void* usdLogQueue)
   if (f_open(&logFile, usdLogConfig.filename, FA_CREATE_ALWAYS | FA_WRITE)
       == FR_OK)
     {
+      DEBUG_PRINT("Logging to file %s\n", usdLogConfig.filename);
       /* write dataset header */
       {
         uint8_t logWidth = 1 + usdLogConfig.numSlots;
