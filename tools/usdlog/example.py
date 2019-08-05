@@ -69,6 +69,34 @@ if re.search('stabilizer', keys):
     if ((re.search('^[Yy]', inStr)) or (inStr == '')):
         plotStab = 1
         plotRows += 1
+
+plotStatePos = 0
+if re.search('stateEstimate', keys):
+    inStr = input("plot stateEstimate.xyz data? ([Y]es / [n]o): ")
+    if ((re.search('^[Yy]', inStr)) or (inStr == '')):
+        plotStatePos = 1
+        plotRows += 1
+ 
+plotStateVel = 0
+if re.search('stateEstimate', keys):
+    inStr = input("plot stateEstimate.vel data? ([Y]es / [n]o): ")
+    if ((re.search('^[Yy]', inStr)) or (inStr == '')):
+        plotStateVel = 1
+        plotRows += 1
+ 
+plotStateAcc = 0
+if re.search('stateEstimate', keys):
+    inStr = input("plot stateEstimate.acc data? ([Y]es / [n]o): ")
+    if ((re.search('^[Yy]', inStr)) or (inStr == '')):
+        plotStateAcc = 1
+        plotRows += 1
+
+plotStateAng = 0
+if re.search('stateEstimate', keys):
+    inStr = input("plot stateEstimate.ang data? ([Y]es / [n]o): ")
+    if ((re.search('^[Yy]', inStr)) or (inStr == '')):
+        plotStateAng = 1
+        plotRows += 1
     
 # current plot for simple subplot usage
 plotCurrent = 0;
@@ -140,5 +168,46 @@ if plotStab:
     plt.xlabel('RTOS Ticks')
     plt.ylabel('Stabilizer')
     plt.legend(loc=9, ncol=4, borderaxespad=0.)
+
+if plotStatePos:
+    plotCurrent += 1
+    plt.subplot(plotRows, plotCols, plotCurrent)
+    plt.plot(logData['tick'], logData['stateEstimate.x'], '-', label='x')
+    plt.plot(logData['tick'], logData['stateEstimate.y'], '-', label='y')
+    plt.plot(logData['tick'], logData['stateEstimate.z'], '-', label='z')
+    plt.xlabel('RTOS Ticks')
+    plt.ylabel('Estimate Position')
+    plt.legend(loc=9, ncol=3, borderaxespad=0.)
+
+if plotStateVel:
+    plotCurrent += 1
+    plt.subplot(plotRows, plotCols, plotCurrent)
+    plt.plot(logData['tick'], logData['stateEstimate.vx'], '-', label='vx')
+    plt.plot(logData['tick'], logData['stateEstimate.vy'], '-', label='vy')
+    plt.plot(logData['tick'], logData['stateEstimate.vz'], '-', label='vz')
+    plt.xlabel('RTOS Ticks')
+    plt.ylabel('Estimate Velocity')
+    plt.legend(loc=9, ncol=3, borderaxespad=0.)
+
+if plotStateAcc:
+    plotCurrent += 1
+    plt.subplot(plotRows, plotCols, plotCurrent)
+    plt.plot(logData['tick'], logData['stateEstimate.ax'], '-', label='ax')
+    plt.plot(logData['tick'], logData['stateEstimate.ay'], '-', label='ay')
+    plt.plot(logData['tick'], logData['stateEstimate.az'], '-', label='az')
+    plt.xlabel('RTOS Ticks')
+    plt.ylabel('Estimate Acceleration')
+    plt.legend(loc=9, ncol=3, borderaxespad=0.)
+
+if plotStateAng:
+    plotCurrent += 1
+    plt.subplot(plotRows, plotCols, plotCurrent)
+    plt.plot(logData['tick'], logData['stateEstimate.roll'], '-', label='roll')
+    plt.plot(logData['tick'], logData['stateEstimate.pitch'],
+             '-', label='pitch')
+    plt.plot(logData['tick'], logData['stateEstimate.yaw'], '-', label='yaw')
+    plt.xlabel('RTOS Ticks')
+    plt.ylabel('Estimate Orientation')
+    plt.legend(loc=9, ncol=3, borderaxespad=0.)
 
 plt.show()
