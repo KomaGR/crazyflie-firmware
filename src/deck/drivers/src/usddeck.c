@@ -58,6 +58,8 @@
 #include "param.h"
 #include "crc_bosch.h"
 
+// #define STATIC_BUFFER
+
 // Hardware defines
 #define USD_CS_PIN    DECK_GPIO_IO4
 
@@ -107,7 +109,12 @@ static FATFS FatFs;
 static FIL logFile;
 
 static QueueHandle_t usdLogQueue;
+#ifndef STATIC_BUFFER
 static uint8_t* usdLogBufferStart;
+#else
+uint8_t usdLogBufferSpace[120*(4+108)];
+static uint8_t* usdLogBufferStart = usdLogBufferSpace;
+#endif
 static uint8_t* usdLogBuffer;
 static TaskHandle_t xHandleWriteTask;
 
@@ -269,39 +276,43 @@ static void usdInit(DeckInfo *info)
       /* Hijack to write config (pls don't fire me) */
       if (f_open(&logFile, "config.txt", FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
         unsigned int bytesWritten;
-        const char *configtxt = "500\n" /* frequency */
-                                "75\n" /* buffer size */
-                                "log\n" /* file name */
-                                "0\n"   /* enable on startup (0/1) */
-                                "1\n"   /* mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous) */
-                                "estControl.controlThrust\n"
-                                "gyro.x\n"
-                                "gyro.y\n"
-                                "gyro.z\n"
-                                "acc.x\n"
-                                "acc.y\n"
-                                "acc.z\n"
-                                // "stateEstimate.x\n"
-                                // "stateEstimate.y\n"
-                                // "stateEstimate.z\n"
-                                // "stateEstimate.vx\n"
-                                // "stateEstimate.vy\n"
-                                // "stateEstimate.vz\n"
-                                // "stateEstimate.ax\n"
-                                // "stateEstimate.ay\n"
-                                // "stateEstimate.az\n"
-                                // "stateEstimate.qx\n"
-                                // "stateEstimate.qy\n"
-                                // "stateEstimate.qz\n"
-                                // "stateEstimate.qw\n"
-                                "flowDt.dpixelx\n"
-                                "flowDt.dpixely\n"
-                                "flowDt.stdDevX\n"
-                                "flowDt.stdDevY\n"
-                                "flowDt.dt\n"
-                                "tofDt.distance\n"
-                                "tofDt.stdDev\n"
-                                "tofDt.timestamp\n";
+        /* Configuration to be written to uSD */
+        const char *const configtxt = "500\n" /* frequency */
+                                      "60\n" /* buffer size */
+                                      "log\n" /* file name */
+                                      "0\n"   /* enable on startup (0/1) */
+                                      "1\n"   /* mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous) */
+                                      "estControl.controlThrust\n"
+                                      "gyro.x\n"
+                                      "gyro.y\n"
+                                      "gyro.z\n"
+                                      "acc.x\n"
+                                      "acc.y\n"
+                                      "acc.z\n"
+                                      "stateEstimate.x\n"
+                                      "stateEstimate.y\n"
+                                      "stateEstimate.z\n"
+                                      "stateEstimate.vx\n"
+                                      "stateEstimate.vy\n"
+                                      "stateEstimate.vz\n"
+                                      "stateEstimate.ax\n"
+                                      "stateEstimate.ay\n"
+                                      "stateEstimate.az\n"
+                                      "stateEstimate.roll\n"
+                                      "stateEstimate.pitch\n"
+                                      "stateEstimate.yaw\n";
+                                      // "stateEstimate.qx\n"
+                                      // "stateEstimate.qy\n"
+                                      // "stateEstimate.qz\n"
+                                      // "stateEstimate.qw\n"
+                                      // "flowDt.dpixelx\n"
+                                      // "flowDt.dpixely\n"
+                                      // "flowDt.stdDevX\n"
+                                      // "flowDt.stdDevY\n"
+                                      // "flowDt.dt\n"
+                                      // "tofDt.distance\n"
+                                      // "tofDt.stdDev\n"
+                                      // "tofDt.timestamp\n";
         unsigned int conflength = strlen(configtxt);
         f_write(&logFile, configtxt, conflength, &bytesWritten);
         if (bytesWritten == conflength) {
@@ -454,6 +465,7 @@ static void usdLogTask(void* prm)
   }
 
   /* allocate memory for buffer */
+  #ifndef STATIC_BUFFER
   DEBUG_PRINT("malloc buffer ...\n");
   // vTaskDelay(10); // small delay to allow debug message to be send
   usdLogBufferStart =
@@ -461,6 +473,9 @@ static void usdLogTask(void* prm)
   usdLogBuffer = usdLogBufferStart;
   DEBUG_PRINT("[OK].\n");
   DEBUG_PRINT("Free heap: %d bytes\n", xPortGetFreeHeapSize());
+  #else
+  usdLogBuffer = usdLogBufferStart;
+  #endif
 
   /* create queue to hand over pointer to usdLogData */
   usdLogQueue = xQueueCreate(usdLogConfig.bufferSize, sizeof(uint8_t*));
@@ -475,9 +490,11 @@ static void usdLogTask(void* prm)
     if (!xHandleWriteTask && enableLogging) {
       xQueueReset(usdLogQueue);
       /* create usd-write task */
+      DEBUG_PRINT("Creating uSD write task...\n");
       xTaskCreate(usdWriteTask, USDWRITE_TASK_NAME,
                   USDWRITE_TASK_STACKSIZE, usdLogQueue,
                   USDWRITE_TASK_PRI, &xHandleWriteTask);
+      DEBUG_PRINT("uSD write task created. Free heap: %d bytes\n", xPortGetFreeHeapSize());
     }
 
     if (enableLogging && usdLogConfig.mode == usddeckLoggingMode_Asyncronous) {
